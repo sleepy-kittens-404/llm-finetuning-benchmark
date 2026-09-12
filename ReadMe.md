@@ -73,7 +73,7 @@ epochs.
 ## Installation
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/sleepy-kittens-404/llm-finetuning-benchmark
 cd llm-finetuning-benchmark
 
 conda create -n llm-bench python=3.10
