@@ -1,0 +1,17 @@
+# install torch separately first, matched to your CUDA driver, e.g.:
+# pip install torch --index-url https://download.pytorch.org/whl/cu121
+torch
+
+transformers
+datasets
+peft
+accelerate
+bitsandbytes
+evaluate
+scikit-learn
+
+numpy
+pandas
+matplotlib
+
+pytest
