@@ -2,10 +2,10 @@
   <img src="assets/thumbnail.png" width="800" alt="Full FT vs LoRA vs QLoRA benchmark thumbnail">
 </p>
 
-# Full Fine-Tuning vs. LoRA vs. QLoRA — An Efficiency Benchmark
+# Full Fine-Tuning vs. LoRA vs. QLoRA : An Efficiency Benchmark
 
-A from-scratch benchmark comparing three ways of adapting an LLM to a downstream task —
-**full fine-tuning**, **LoRA**, and **QLoRA** — measuring the actual tradeoffs in VRAM,
+A from-scratch benchmark comparing three ways of adapting an LLM to a downstream task 
+**full fine-tuning**, **LoRA**, and **QLoRA** measuring the actual tradeoffs in VRAM,
 training time, trainable parameters, and accuracy, on consumer hardware (a laptop RTX 4060,
 8GB VRAM).
 
@@ -26,8 +26,8 @@ places where the numbers *didn't* behave the way the common wisdom predicts — 
 
 \* QLoRA's percentage isn't directly comparable to LoRA's — see the counting caveat below.
 
-**Headline result:** QLoRA on 5,000 samples was the best run overall — highest accuracy,
-*and* lowest VRAM of any 5,000-sample run — while training 99.7% fewer parameters than full
+**Headline result:** QLoRA on 5,000 samples was the best run overall highest accuracy,
+*and* lowest VRAM of any 5,000-sample run, while training 99.7% fewer parameters than full
 fine-tuning. Full fine-tuning never won outright on accuracy and was consistently the most
 expensive method to run.
 
@@ -40,7 +40,7 @@ expensive method to run.
 Most public LoRA/QLoRA comparisons run on rented A100s and don't report what actually happens
 when you're constrained to consumer hardware. This project deliberately works within an 8GB
 laptop GPU's limits, and reports what broke, what needed workarounds, and what the real
-numbers looked like — not just a clean success story.
+numbers looked like, not just a clean success story.
 
 ## Setup
 
@@ -65,7 +65,7 @@ AG News's official test split and never touched during training or validation.
 | LoRA | Base model weights | Low-rank adapters on `q/k/v/o_proj` (r=16, α=32) + classification head |
 | QLoRA | Base model weights (4-bit NF4 quantized) | Same LoRA adapters + classification head |
 
-Learning rate was tuned per method (2e-5 for full-FT, 2e-4 for LoRA/QLoRA) — using the same
+Learning rate was tuned per method (2e-5 for full-FT, 2e-4 for LoRA/QLoRA) using the same
 LR across methods would have been an *unfair* comparison, not a more rigorous one, since
 LoRA's small adapter matrices need larger steps to learn effectively in the same number of
 epochs.
@@ -113,9 +113,9 @@ python -m tests.test_pipeline
 </p>
 
 - **Low-data regime (500 samples):** QLoRA > LoRA > Full FT on accuracy (87.27% > 86.20% >
-  84.67%). Full fine-tuning overfits hardest with the least data — its training loss dropped
+  84.67%). Full fine-tuning overfits hardest with the least data its training loss dropped
   to 0.009 while validation loss climbed back up after epoch 2, a textbook overfitting curve.
-- **Higher-data regime (5,000 samples):** the accuracy gap narrows/reverses — QLoRA edges out
+- **Higher-data regime (5,000 samples):** the accuracy gap narrows/reverses QLoRA edges out
   both other methods (92.93% vs. 92.20% / 92.20%).
 - **Efficiency:** LoRA/QLoRA train **99.7% fewer parameters** than full fine-tuning across the
   board. Full fine-tuning was the *only* method to exceed the physical 8GB VRAM limit
@@ -128,19 +128,19 @@ python -m tests.test_pipeline
 
 The validation-loss curves above make the overfitting pattern visible directly: at 500
 samples (left), every method's validation loss bottoms out early then rises; at 5,000 samples
-(right), all three curves stay close together and rise only gently — far less overfitting
+(right), all three curves stay close together and rise only gently  far less overfitting
 with more data.
 
 ## Anomalies & honest findings
 
-These are the results that didn't come out clean, reported as-is rather than smoothed over —
+These are the results that didn't come out clean, reported as-is rather than smoothed over,
 this is where the actual engineering understanding shows up, not in the tidy numbers.
 
 **1. Full fine-tuning silently exceeded physical VRAM.**
 `torch.cuda.max_memory_allocated()` reported ~14.7GB peak usage for full fine-tuning on an
 8GB card. This is real: recent NVIDIA Windows drivers transparently spill CUDA allocations
 into system RAM instead of raising an out-of-memory error. This explains why full-FT runs
-were disproportionately slow — system RAM is far slower than VRAM, and every access to the
+were disproportionately slow, system RAM is far slower than VRAM, and every access to the
 spilled portion pays that cost. On a driver/OS without this fallback (or on Linux), the same
 run would likely have failed outright with an OOM error.
 
@@ -157,14 +157,14 @@ that scaling caveat rather than a project bug.
 **3. Trainable-parameter percentages aren't directly comparable between LoRA and QLoRA.**
 Both methods train the identical LoRA adapter configuration (4,364,288 parameters), but
 `total_params` differs — 1,548,084,736 for LoRA (bf16 base model) vs. 892,986,880 for QLoRA
-(4-bit quantized base model) — because of how quantized weights are counted internally. The
+(4-bit quantized base model) because of how quantized weights are counted internally. The
 *absolute* trainable count is the fair comparison; the *percentage* is not.
 
 **4. Best validation checkpoint often wasn't the final epoch.**
 With `load_best_model_at_end=False` (chosen to avoid multi-GB checkpoint saves — see below),
 every run's test-set evaluation reflects the *final* epoch's weights, not necessarily the
 best one seen during training. In several runs (e.g. full-FT-500), validation loss actually
-bottomed out mid-training and rose afterward. This is noted rather than hidden — it's a
+bottomed out mid-training and rose afterward. This is noted rather than hidden it's a
 deliberate methodology tradeoff (disk space vs. optimal-checkpoint selection), not an
 oversight.
 
@@ -208,7 +208,7 @@ llm-finetuning-benchmark/
 - Only two training-set sizes were tested; a wider sweep (e.g. 100 / 1k / 10k / 50k) would
   make the low-data-regime story more statistically convincing (each run here is a single
   seed, not averaged over multiple runs).
-- All results come from a single run per configuration — training-run variance (especially
+- All results come from a single run per configuration, training-run variance (especially
   at 500 samples) was not measured directly, though the overfitting/noise patterns observed
   are consistent with what's expected at this scale.
 
